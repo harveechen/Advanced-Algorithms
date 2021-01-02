@@ -6,7 +6,7 @@
 \usepackage{enumerate}
 \usepackage[vlined, ]{algorithm2e} %ruled vlined
 
- 
+
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 \renewcommand{\thealgocf}{}
@@ -66,7 +66,7 @@
         \\[60pt]
         \begin{figure}[ht]
             \centering
-            \begin{minipage}{.7\linewidth}
+            \begin{minipage}{.75\linewidth}
         \begin{algorithm}[H]
             \caption{greedy maximum coverage}
             \KwIn{pattition $S_1,S_2,\cdots,S_r$}
@@ -120,6 +120,30 @@
         From Chernoff bound, we have
         \[\mathrm{Pr}[x \ge (1+\epsilon)np] \le \exp(-\frac{\epsilon^2np}{3})\]
         By optimize $\epsilon$, we have an upper bound of $2n\ln d /d$, what is worse when $d > 2$.
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{4}
+    ~
+
+    \begin{itemize}
+        \item \begin{align*}
+            \mu_v(+1|\sigma(V\backslash{v})) & = \frac{\mu(\sigma(v) = +1, \sigma(V\backslash{v}))}{\mu(\sigma(v) = +1, \sigma(V\backslash{v}))+\mu(\sigma(v) = -1, \sigma(V\backslash{v}))} \\
+            & = \frac{\mu(\sigma(v) = +1)\mu(\sigma(V\backslash{v}))}{\mu(\sigma(v) = +1)\mu(\sigma(V\backslash{v}))+\mu(\sigma(v) = -1)\mu(\sigma(V\backslash{v}))} \\
+            & = \frac{\mu(\sigma(v) = +1)}{\mu(\sigma(v) = +1)+ \mu(\sigma(v) = -1)} \\
+            & = \frac{\exp(-\sum_{u \sim v}\beta\sigma(u))}{\exp(-\sum_{u\sim v}\beta\sigma(u))+\exp(\sum_{u\sim v}\beta\sigma(u))} \\
+            \\
+            \mu_v(-1|\sigma(V\backslash{v})) & = 1-\mu_v(+1|\sigma(V\backslash{v})) \\
+            & = \frac{\exp(\sum_{u \sim v}\beta\sigma(u))}{\exp(-\sum_{u\sim v}\beta\sigma(u))+\exp(\sum_{u\sim v}\beta\sigma(u))}
+        \end{align*}
+        \item \begin{enumerate}
+            \item irreducible: For every configuration $sigma$, by the Glauber dynamics, you have none-zero probability to change
+            one vertex's state to another configuration, or reverse. So for arbitrary two configurations, one can flip one vertex with
+            none-zero probability every step to transfer from one to another. So it is irreducible.
+            \item aperiodic: There exists situation that the state of choosing vertex does not change. That's to say the
+            diagonal of the transition matrix if none-zero. So it is aperiodic
+            \item 
+        \end{enumerate}
     \end{itemize}
 \end{solution}
 
