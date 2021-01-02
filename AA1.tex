@@ -1,0 +1,384 @@
+%!BIB program = bibtex
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{enumerate}
+\usepackage[ruled]{algorithm2e} %ruled vlined
+
+
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+    
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{solution}[2][Solution]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\begin{document}
+
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+
+\title{Problem Set 1}%replace X with the appropriate number
+\author{Chen Hao \\ MG20330007\\ %replace with your name
+    Advanced Algorithms (Fall 2020)} %if necessary, replace with your course title
+
+\maketitle
+
+\begin{solution}{1} %You can use theorem, exercise, problem, or question here.  Modify x.yz to be whatever number you are proving
+    The modified Karger's Contraction algorithm is as follow:
+
+    \begin{algorithm}[H]
+        % \LinesNumbered %enable line number
+        \KwIn{an undirected weighted graph $G(V,E)$ with positive real weight} % input parameters
+        \KwOut{a minimized cut $C$} % output result
+        \While{$|V| > 2$}{
+            choose an edge $uv \in E$ at random proportional to \textbf{weight}\;
+            $G=Contract(G, uv)$\;
+        }
+        \KwRet{$C=\sum_{e \in E}w_e$}($E$ is the parallel edges between the only tow vertices in $V$)\;
+        \caption{RandomContract2} % algotithm name
+    \end{algorithm}
+    To illustrate how that algorithm works, let's first proof the following lemma:
+    \begin{lemma}{A}
+        Given a fixed multigraph $G$ and a fixed minimum cut $C$, for every iteration:
+        \begin{equation*}
+            \text{Pr[randomly picked edge lies in $C$]} \le \frac{2}{n_i}
+        \end{equation*}
+        where $n_i$ denotes the number of vertices left after previous contraction($n_1=|V|=n$).
+    \end{lemma}
+    \begin{proof}
+        Use notation $d(v)$ indicates the sum weight of edges incident to the vertex $v$, and $w_C$
+        indicates the sum weight of edges in the cut $C$. Obviously, for any
+        vertex $v$ of the $G$, we have that $d(v) \ge w_C$ (else it is smaller than the minimum cut, which is a
+        contradiction). This implies that the total weights of $G$ satisfies $w_{Total} \ge n_iw_C/2$. Because the
+        edge is picked proportional to its \textbf{weight}, we can have that:
+        \begin{equation*}
+            \text{Pr[randomly picked edge lies in $C$]} = \frac{w_C}{w_{Total}} \le \frac{w_C}{n_iw_C/2} = \frac{2}{n_i}
+        \end{equation*}
+    \end{proof}
+    Returning to the algorithm, in order for the mimimum cut $C$ to be returned, the cut $C$ must
+    survives all the $n-2$ iteration of selection. That is:
+    \begin{align*}
+        p_{correct} & = \text{Pr[a minimum cut is returned by RandomContract2]}                    \\
+                    & \ge \text{Pr[$C$ is returned by RandomContract2]}                            \\
+                    & = \text{Pr[$e_i \notin C$  for all i = 1,2,...,n-2]}                         \\
+                    & = \text{$\prod_{i=1}^{n-2}$Pr[$e_i \notin C | \forall j < i, e_j \notin C$]} \\
+                    & \ge \prod_{i=1}^{n-2}(1-\frac{2}{n-i+1})                                     \\
+                    & = \frac{2}{n(n-1)}
+    \end{align*}
+    So the modified algorithm returns a weighted minimum cut with probability at least $\frac2{n(n-1)}$
+\end{solution}
+
+\begin{solution}{2}
+    ~
+    \begin{itemize}
+        \item \begin{proof}
+        for arbitray $\lambda \ge 0$, we have:
+            \begin{align*}
+                \text{Pr}[X \ge t] &= \text{Pr}[e^{\lambda X} \ge e^{\lambda t}] \\
+                & \le \frac{\mathbb{E}[e^{\lambda X}]}{e^{\lambda t}} &\text{(Markov's inequality)} \\
+                & = \text{exp}(-(\lambda t - \ln \mathbb{E}[e^{\lambda X}]))
+            \end{align*}
+        we can obtain a tight bound by select $\lambda$ to make $\lambda t - \ln E[e^{\lambda X}]$ 
+        to get its supremum $\Psi_X^*(t) \coloneqq \sup_{\lambda \ge 0}(\lambda t - \Psi_X(\lambda))$.
+        So $\text{Pr}[X \ge t] \le \text{exp}(-\Psi_X^*(t))$
+
+        The remaining part of the proof is as folowed. We define $\Phi_X(\lambda) \coloneqq \lambda t
+        - \Psi_X(\lambda), \lambda \ge 0$, then we have $\Psi_X^*(t) = \max_{\lambda \ge 0}\Phi_X(\lambda)$. 
+        Apply derivation on $\Phi_X(\lambda)$ with respect to $\lambda$, 
+        it comes that $\Phi_X^{\prime}(\lambda) = t - \Psi_X^{\prime}(\lambda)$. Because $\Phi_X(\lambda) = 
+        \ln \mathbb{E}[e^{\lambda X}]$ is monotone increasing, if there exists a $\hat{\lambda}$ satisfies $\Psi_X^{\prime}(\hat{\lambda}) = t$,
+        then it must be unique. In addition, $\Phi_X(\lambda)$ gets positive value at the left of $\hat{\lambda}$, and negative value the right, So
+        $\Psi_X^*(t) = \max_{\lambda \ge 0}\Phi_X(\lambda) = \Psi_X(\hat{\lambda})$. If none of  $\lambda$ success, then the supreme can not be achieved.
+        \end{proof}
+        \item Normal random variables.
+        \begin{align*}
+            \Psi_X(\lambda) & = \ln \mathbb{E}[e^{\lambda X}] \\
+            & = \ln (\frac1{\sqrt{2\pi}\sigma}\int e^{\lambda x}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \text{d}x) \\
+            & = \ln (\frac1{\sqrt{2\pi}\sigma}\int e^{-\frac{[x-(\mu + \sigma^2\lambda)]^2}{2\sigma^2} + \mu \lambda + \frac{\sigma^2 + \lambda}2} \text{d}x) \\
+            & = \ln (e^{\mu \lambda + \frac{\sigma^2 + \lambda}2} \frac1{\sqrt{2\pi}\sigma}\int e^{-\frac{[x-(\mu + \sigma^2\lambda)]^2}{2\sigma^2}} \text{d}x) \\
+            & = \mu \lambda + \frac{\sigma^2 + \lambda}2
+        \end{align*}
+        \begin{align*}
+            \Psi_X^*(t) & = \sup_{\lambda \ge 0}(\lambda t - \Phi_X(\lambda)) \\
+            & = \sup_{\lambda \ge 0}(\lambda t - \mu \lambda - \frac{\sigma^2 + \lambda}2) \\
+            & = \max_{\lambda \ge 0}(\lambda t - \mu \lambda - \frac{\sigma^2 + \lambda}2)
+        \end{align*}
+        we define $\Phi_X(\lambda) = \lambda t - \Psi_X(\lambda) = \lambda t - \mu \lambda - \frac{\sigma^2 + \lambda}2 $ the same as above, and do derivation to obtain that:
+        \[\Phi_X^{\prime}(\lambda) = t-\mu - \sigma^2\lambda\]
+        let above equal to 0 to get the point when $\Phi_X(\lambda)$ achieve max value, thus we have：
+        \begin{align*}
+            \Psi_X^*(t) & = \max_{\lambda \ge 0}\Phi_X(\lambda) \\
+            & = \Phi_X(\lambda)|_{\lambda=\frac{t-\mu}{\sigma^2}} \\
+            & = \frac{(t-\mu)^2}{\sigma^2} - \frac{(t-\mu)^2}{2 \sigma^2} \\
+            & = \frac{(t-\mu)^2}{2 \sigma^2}
+        \end{align*}
+        Otherwise, if the point cannot get, then $\Psi_X^*(t)=0$ \\
+        In conclusion:
+        \[\mathrm{Pr}[X \ge t] \le \mathrm{exp}({-\Psi_X^*(t)}) = \mathrm{exp}({\frac{(t-\mu)^2}{2 \sigma^2}})\]
+
+        \item Poisson random variables.
+        \begin{align*}
+            \Psi_X(\lambda) & = \ln \mathbb{E}[e^{\lambda X}] \\
+            & = \ln \sum_{k=0} \frac{e^{- v} v^k}{k!}e^{\lambda k} \\
+            & = \ln(e^{-v}\sum_{k=0}\frac{(ve^\lambda)^k}{k!}) \\
+            & = \ln(e^{-v}e^{ve^\lambda}) \\
+            & = -v + ve^\lambda
+        \end{align*}
+        we define $\Phi_X(\lambda) = \lambda t - \Psi_X(\lambda) = \lambda t + v - ve^\lambda$ the same as above, and do derivation to obtain that:
+        \[\Phi_X^{\prime}(\lambda) = t - ve^\lambda\]
+        let above equal to 0 to get the point when $\Phi_X(\lambda)$ achieve max value, thus we have：
+        \begin{align*}
+            \Psi_X^*(t) & = \max_{\lambda \ge 0}\Phi_X(\lambda) \\
+            & = \Phi_X(\lambda)|_{\lambda=\ln \frac{t}{v}} \\
+            & = t \ln \frac{t}{v} + v -t
+        \end{align*}
+        Otherwise, if the point cannot get, then $\Psi_X^*(t)=v-1$ \\
+        In conclusion:
+        \[\mathrm{Pr}[X \ge t] \le \mathrm{exp}({-\Psi_X^*(t)}) = \mathrm{exp}(-t \ln \frac{t}{v} - v + t) = (\frac{t}{v})^{-t}e^{-v+t}\]
+        \item Bernoulli random variables.
+        \begin{align*}
+            \Psi_X(\lambda) & = \ln \mathbb{E}[e^{\lambda X}] \\
+            & = \ln (e^\lambda p + 1 \cdot (1-p))
+        \end{align*}
+        we define $\Phi_X(\lambda) = \lambda t - \Psi_X(\lambda) = \lambda t - \ln (e^\lambda p + 1 \cdot (1-p))$ the same as above, and do derivation to obtain that:
+        \[\Phi_X^{\prime}(\lambda) = t - \frac{pe^\lambda}{pe^\lambda+(1-p)}\]
+        let above equal to 0 to get the point when $\Phi_X(\lambda)$ achieve max value, thus we have：
+        \begin{align*}
+            \Psi_X^*(t) & = \max_{\lambda \ge 0}\Phi_X(\lambda) \\
+            & = \Phi_X(\lambda)|_{\lambda=\ln \frac{t(1-p)}{p(1-t)}} \\
+            & = t\ln \frac{t(1-p)}{p(1-t)} - \ln(t\frac{t(1-p)}{p(1-t)}p + (1-p)) \\
+            & = -t\ln \frac{1-t}{1-p}+t\ln\frac{t}{p}-\ln\frac{1-p}{1-t} \\
+            & = (1-t)\ln \frac{1-t}{1-p}+t\ln\frac{t}{p} \\
+            & = D(X||Y)
+        \end{align*}
+        \item Sum of independent random variables.
+        \begin{align*}
+            \Psi_X(\lambda) & = \ln \mathbb{E}[e^{\lambda X}] \\
+            & = \ln \mathbb{E}[\mathrm{exp}(\lambda \sum_{i=1}^n X_i)] \\
+            & = \ln \prod_{i=1}^n \mathbb{E}[\mathrm{exp}(\lambda X_i)] \\
+            & = \sum_{i=1}^n \ln \mathbb{E}[\mathrm{exp}(\lambda X_i)] \\
+            & = \sum_{i=1}^n \Psi_{X_i}(\lambda)
+        \end{align*}
+        As $X_1, X_2, \cdots, X_n$ are independently and identically distributed random variables, $\Psi_{X_i}(\lambda) = \Psi_{X_j}(\lambda), \forall i \neq j$,
+        What is to say:
+        \begin{align*}
+            \Psi_X^*(t) & = \sup_{\lambda \ge 0}[\lambda t - \Psi_X(\lambda)] \\
+            & = \sup_{\lambda \ge 0}[\lambda t -\sum_{i=1}^n \Psi_{X_i}(\lambda)] \\
+            & = \sup_{\lambda \ge 0}[\lambda t - n\Psi_{X_i}(\lambda)] \\
+            & = \sup_{\lambda \ge 0}[n(\lambda \frac{t}{n} - \Psi_{X_i}(\lambda))] \\
+            & = n \cdot \sup_{\lambda \ge 0}[\lambda \frac{t}{n} - \Psi_{X_i}(\lambda)] \\
+            & = n\Psi_{X_i}^*(\frac{t}{n})
+        \end{align*}
+        For binomial random variable $X \sim \mathrm{B}(n,p)$, because $X = \sum_{i=1}^nX_i$, $X_1,X_2,\cdots,X_n$ is independently and identically distributed.
+        From the above analysis, we have:
+        \[\Psi_X(\lambda)= n\Psi_{X_i}(\lambda) = n \ln(e^\lambda p+(1-p))\]
+        \[\Psi_X^*(t) =  n\Psi_{X_i}^*(\frac{t}{n}) = nD(Y_i||X_i)\]
+        where $Y_i$ is a seris $\mathbf{i.i.d}$ Bernoulli random variable with parameter $\frac{t}{n}$. Thus:
+        \[\mathrm{Pr}[X \ge t] \le \mathrm{exp}(-\Psi_X^*(t)) = \mathrm{exp}(-nD(Y_i||X_i))\]
+        
+        For random variable $X_i$ follows geometric distribution, we first calculate the $\Psi_{X_i}(\lambda)$ and $\Psi_{X_i}^*(\lambda)$:
+        \begin{align*}
+            \Psi_{X_i}(\lambda) & = \ln \mathbb{E}[e^{\lambda X_i}] \\
+            & = \ln \sum_{k=1}e^{\lambda k}(1-p)^{k-1}p \\
+            & = \ln pe^\lambda\sum_k[e^\lambda(1-p)^{k-1}] \\
+            & = \ln pe^\lambda\frac{1}{1-e^\lambda(1-p)}
+        \end{align*}
+        we define $\Phi_{X_i(}\lambda) = \lambda t - \Psi_{X_i}(\lambda) = \lambda t - \ln pe^\lambda\frac{1}{1-e^\lambda(1-p)}$ the same as above, and do derivation to obtain that:
+        \[\Phi_{X_i}^{\prime}(\lambda) = t - \frac{1}{1-e^\lambda(1-p)}\]
+        let above equal to 0 to get the point when $\Phi_{X_i}(\lambda)$ achieve max value, thus we have：
+        \begin{align*}
+            \Psi_{X_i}^*(t) & = \max_{\lambda \ge 0}\Phi_{X_i}(\lambda) \\
+            & = \Phi_{X_i}(\lambda)|_{\lambda = \frac{1-1/t}{1-p}} \\
+            & = t \ln \frac{1-1/t}{1-p} - \ln p\frac{t-1}{1-p} \\
+            & = (t-1)\ln\frac{t-1}{1-p} - t\ln t -\ln p
+        \end{align*}
+        then we obtain that:
+        \[\Psi_{X}^*(t) = n\Psi_{X_i}^*(\frac{t}{n})=(t-n)\ln \frac{t/n-1}{1-p}-t\ln\frac{t}{n}-\ln p\]
+        what follows:
+        \[\mathrm{Pr}[X \ge t] \le \mathrm{exp}(-\Psi_X^*(t)) = (\frac{t/n-1}{1-p})^{(n-t)}+(\frac{t}{n})^t+p\]
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{3}
+    ~\\
+    Applying the taylor's expansion, that $e^x \sim 1+x$, we have:
+    \[\mathrm{Pr}[e^{-\epsilon}Z \le \hat Z \le e^\epsilon Z] = \mathrm{Pr}[(1-\epsilon)Z \le \hat Z \le (1+\epsilon)Z] \ge 1-\delta\]
+    what is to say:
+    \[\mathrm{Pr}[|\hat Z - Z| \ge \epsilon Z] \le \delta\]
+    From definition of $\hat Z$, we obtain that:
+    \begin{align*}
+        \mathbb{E}[\hat Z] & = \mathbb{E}[\prod_{i=1}^n \hat \rho_i] \\
+        & = \prod_{i=1}^n\mathbb{E}[\hat \rho_i] \\
+        & = \prod_{i=1}^n\mathbb{E}[\frac1s \sum_{j=1}^s X_i^{(j)}] \\
+        & = \prod_{i=1}^n\frac1s \sum_{j=1}^s \mathbb{E}[X_i^{(j)}] \\
+        & = \prod_{i=1}^n \rho_i \\
+        & = Z
+    \end{align*}
+    Then, we have:
+    \begin{align}
+        \mathrm{Pr}[|\hat Z - Z| \ge \epsilon Z] & = \mathrm{Pr}[|\hat Z - \mathbb{E}[\hat Z]| \ge \epsilon Z] \\
+        & \label{eqn2} \le \frac{\mathrm{Var}[\hat Z]}{\epsilon^2Z^2} & \text{(by Chebyshev's inequality)}
+    \end{align}
+    We now calculate the $\mathbf{Var}[\hat Z]$:
+    \begin{align*}
+        \mathbf{Var}[\hat Z] &= \mathbb{E}[\hat{Z}^2] - \mathbb{E}^2[\hat{Z}] \\
+        & = \mathbb{E}[(\prod_{i=1}^n \hat \rho_i)^2] - (\prod_{i=1}^n \rho_i)^2 \\
+        & = \mathbb{E}[\prod_{i=1}^n \hat \rho_i^2] - \prod_{i=1}^n \rho_i^2 \\
+        & = \prod_{i=1}^n\mathbb{E}[ \hat \rho_i^2] - \prod_{i=1}^n \rho_i^2 \\
+        & = \prod_{i=1}^n[\mathbf{Var}[\hat \rho_i] + \mathbb{E}^2[\hat \rho_i]] - \prod_{i=1}^n \rho_i^2 \\
+    \end{align*}
+    Because $X_i^{(j)}$ is $\mathbf{i.i.d}$, $\mathbf{Var}[\hat \rho_i] = \mathbf{Var}[\frac1s \sum_{j=1}^sX_i^{(j)}] = \frac1{s^2} \sum_{j=1}^s\mathbf{Var}[X_i^{(j)}] = \frac1s(1-\rho_i)\rho_i$.
+    Togother with $\mathbb{E}[\hat \rho_i] = \mathbb{E}[\frac1s \sum_{j=1}^sX_i^{(j)}] = \sum_{j=1}^s\frac1s\mathbb{E}[ X_i^{(j)}] = \rho_i$, we have:
+    \begin{align*}
+        \mathbf{Var}[\hat Z] & = \prod_{i=1}^n[\mathbf{Var}[\hat \rho_i] + \mathbb{E}^2[\hat \rho_i]] - \prod_{i=1}^n \rho_i^2 \\
+        & = \prod_{i=1}^n[\frac1s(1-\rho_i)\rho_i + \rho_i^2] - \prod_{i=1}^n \rho_i^2
+    \end{align*}
+    Back to~\eqref{eqn2}
+    \begin{align}
+        \mathrm{Pr}[|\hat Z - Z| \ge \epsilon Z] & \le \frac{\mathrm{Var}[\hat Z]}{\epsilon^2Z^2} \\
+        & =  \frac{1}{\epsilon^2} \cdot \frac{\prod_{i=1}^n[\frac1s(1-\rho_i)\rho_i + \rho_i^2] - \prod_{i=1}^n \rho_i^2}{\prod_{i=1}^n \rho_i^2} \\
+        & = \frac{1}{\epsilon^2} \cdot [\frac{\prod_{i=1}^n[\frac1s(1-\rho_i)\rho_i + \rho_i^2]}{\prod_{i=1}^n \rho_i^2} -1]\\
+        & = \label{eqn3}\frac{1}{\epsilon^2} \cdot [\prod_{i=1}^n[\frac1s(\frac1\rho_i-1) + 1] -1]
+    \end{align}
+    To give~\eqref{eqn3} a tight bound $\mathrm{Pr}[|\hat Z - Z| \le \delta$, we observe that $\rho_i \ge \frac12$ and have that:
+    \begin{gather*}
+        \frac{1}{\epsilon^2} \cdot [\prod_{i=1}^n[\frac1s(\frac1\rho_i-1) + 1] -1]|_{\rho_i = \frac12} = \delta \\
+        \frac{1}{\epsilon^2}[(\frac1s+1)^n-1] = \delta \\
+        (1 + \frac1s)^n = \epsilon^2\delta + 1 \\\
+        s = \frac{1}{(\epsilon^2\delta + 1)^{1/n}-1}
+    \end{gather*}
+\end{solution}
+
+\begin{solution}{4}
+    ~\\
+    Suppose there exist 3 set of bins, $\mathcal{A}, \mathcal{B}$ and $\mathcal{C}$, all have $n$ empty bins at the beginning. There
+    are four ways to drop a ball:
+    \begin{enumerate}[(a)]
+        \item select a bin of number $i \in [n]$ independently and uniformly at random and drop a ball in;
+        \item select two bins of number $i \in [n]$ independently and uniformly at random and choose the least loaded to drop a ball;
+        \item select two bins of number $i \in [n]$ independently and uniformly at random and drop nothing;
+        \item select two bins of number $i \in [n]$ independently and uniformly at random and choose the first to drop a ball;
+    \end{enumerate}
+
+    For every round of dropping balls, if method (a) is appiled to $\mathcal{A}$, then do the same with $\mathcal{B}$ and $\mathcal{C}$.
+    Otherwise, if method (b) is appiled to $\mathcal{A}$, then drop ball with method (c) to $\mathcal{B}$ and with method (d) to $\mathcal{C}$. 
+    The count of appling method (a) is the same of method (b), that is $n/2$
+
+    Let function $\mathbf{M}(S)$ denotes the number of balls in max-loaded bin of set $S$ with high probability.
+    For coupling set $(\mathcal{A}, \mathcal{B}, \mathcal{C})$, since the ball number in max-loaded bins is not increasing from method
+    (d) to (b) to (c), we have $\mathbf{M}(\mathcal{B}) \le \mathbf{M}(\mathcal{A}) \le \mathbf{M}(\mathcal{C})$.
+
+    For $\mathcal{B}$, we only drop half of the $n$ balls, which is $\Theta(n)$, so $\mathbf{M}(\mathcal{B}) = \Theta(\frac{\log n}{\log \log n})$
+
+    For $\mathcal{C}$, we do the same as appling method (a) $n$ times, which is $\Theta(n)$, so $\mathbf{M}(\mathcal{C}) = \Theta(\frac{\log n}{\log \log n})$
+
+    Follow Sandwich Theorem, we have that $\mathbf{M}(\mathcal{A}) = \Theta(\frac{\log n}{\log \log n})$.
+
+    Because the distribution of sololy dropping balls in $\mathcal{A}$ is the same as the marginal distribution of $\mathcal{A}$ when dropping
+    balls to coupling set $(\mathcal{A}, \mathcal{B}, \mathcal{C})$. So they have the same expectation value under operation of $\mathbf{M}$.
+    For all the three paradigms in the question, as the discution above, the order of appling method (a) or (b) have nothing to do with the max load.
+    In conclusion, the maximum load with high probability is all $\Theta(\frac{\log n}{\log \log n})$ in three paradigms.
+\end{solution}
+
+\begin{solution}{5}
+    ~
+    \begin{enumerate}
+        \item If $g \equiv 0$, then for arbitray $\vec{x}$, there exists $k$ that $a_kx_k-b_k = 0 \mod{p}$. Since
+        $0 \le a_k, b_k \le n < p$, then there must be $x_k = 0 \mod{p}$ or $a_k = b_k = 0$. However, the $\vec{x}$
+        is arbitraily selected, so there we have $f(\vec{x}) = (a_kx_k - b_k)\prod_{i \neq k}(a_ix_i-b_i) \equiv 0$.
+        That is to say $f \not \equiv 0 \implies g \not \equiv 0$.
+        \item\begin{algorithm}[h]
+            choose $r_1, r_2, \cdots, r_n \in \mathbb{Z}_p$ uniformly and independently at random\;
+            if $g(\vec r) = g(r_1, r_2, \cdots, r_n) = 0$ then return "yes" else return "no" \;
+            \caption{Randomized algorithm for multivariate PIT} % algotithm name
+        \end{algorithm}
+        if $g \equiv 0$, the algorithm always returns "yes", from the proof above, it is always correct. \\
+        if $g \not \equiv 0$, the algorithm may wrongly return "yes" (a false positive). But this happens only when the random
+        $\vec r = (r_1, r_2, \cdots, r_n)$ is a root of $g$. The probability of this bad event is upper bounded by Schwartz-Zippel Theorem
+        as that,
+        \[\mathrm{Pr}[g(r_1, r_2, \cdots, r_n) = 0] \le \frac{n}{p} = \epsilon\]
+        where $n$ is the degree of the nonzero $n$-variate polynomial $g$ which is strictly small than $p$.
+    \end{enumerate}
+\end{solution}
+
+\begin{solution}{6}
+    ~
+    \begin{enumerate}[(a)]
+        \item \begin{proof}
+            We only prove this for discrete distrution by induction on the number
+            of mass point. The continuous condtion can be extended by replacing
+            continuity argument. For tow-mass-point distribution, the inequality becomes
+            \[p_1f(x_1) + p_2f(x_2) \ge f(p_1x_1+p_2x_2)\]
+            where $p_1+p_2=1, p_1,p_2 \ge 0$. It follows directly from the convex
+            function definition.
+            Assuming that the inequality is true for distribution with k-1 mass points.Then
+            for k, we have:
+            \begin{align*}
+                \mathbb{E}[f(X)] & = \sum_{i=1}^{k}p_if(x_i)                                                                                                                  \\
+                                 & = p_kf(x_k)+\sum_{i=1}^{k-1}p_if(x_i)                   & (\text{rewrite $p_i=p_i^{\prime}*(1-p_k)$})                                      \\
+                                 & = p_kf(x_k)+(1-p_k)\sum_{i=1}^{k-1}p_i^{\prime}f(x_i)   & (\text{since $\sum_{i=1}^{k-1}p_i^{\prime}=\frac1{1-p_k}\sum_{i=1}^{k-1}p_i$}=1) \\
+                                 & \ge p_kf(x_k)+(1-p_k)f(\sum_{i=1}^{k-1}p_i^{\prime}x_i)                                                                                    \\
+                                 & \ge f(p_kx_k+(1-p_k)\sum_{i=1}^{k-1}p_i^{\prime}x_i)                                                                                       \\
+                                 & = f(\sum_{i=1}^{k}p_ix_i)                                                                                                                  \\
+                                 & = f(\mathbb{E}[X])
+            \end{align*}
+        \end{proof}
+        \item \begin{proof}
+            The funtion $f(x)=x$ is strictly convex, as $f^{\prime \prime}(x)=\frac1t\log e > 0$ for all positive x. 
+            Thus by Jensen's inequality, we have:
+            \[\sum\alpha_i f(x_i) \ge f(\sum\alpha_i x_i)\]
+            where $\alpha_i \ge 0, \sum_i \alpha_i = 1$. Let $\alpha_i = \frac{b_i}{\sum_{j=1}^{n}{b_j}}$ and $x_i=\frac{a_i}{b_i}$, we obtain:
+            \[\sum(\frac{b_i}{\sum b_j}\times \frac{a_i}{b_i}\log \frac{a_i}{b_i}) \ge (\sum\frac{b_i}{\sum b_j}\frac{a_i}{b_i})\log (\sum\frac{b_i}{\sum b_j}\frac{a_i}{b_i})\]
+            Simplify it, we get:
+            \[\sum(\frac{a_i}{\sum b_j}\log \frac{a_i}{b_i}) \ge (\sum\frac{a_i}{\sum b_j})\log (\sum\frac{a_i}{\sum b_j})\]
+            which is the log sum inequality.
+        \end{proof}
+        \item \begin{proof}
+        Let $Y_i = X_i-\mathbb{E}[X_i]$, and $Y = \sum_{i=1}^nY_i = X-\mathbb{E}[X]$, thus $\mathbb{E}[Y_i]=0$, and $\mathbb{E}[Y]=0$.
+        Let $Y_i^{\prime}$ denote an independent copy of $Y_i$ then we have that,
+        \[\mathbb{E}_{Y_i}[\mathrm{exp}(\lambda Y_i)] = \mathbb{E}_{Y_i}[\mathrm{exp}(\lambda(Y_i-\mathbb{E}[Y_i^{\prime}])] \le \mathbb{E}_{Y_i,Y_i^\prime}[\mathrm{exp}(\lambda(Y_i-Y_i^{\prime})]\]
+        using Jensen's inequality, and the convexity of the funtion $\mathrm{exp}(x)$.
+        Now, let $\epsilon$ be a Rademacher random variable. Then note that the distribution of $Y_i - Y_i^\prime$
+        is identical to the distribution of $\epsilon(Y_i- Y_i^\prime)$ So we obtain that,
+        \begin{align*}
+            \mathbb{E}_{Y_i,Y_i^\prime}[\mathrm{exp}(\lambda(Y_i-Y_i^{\prime})] & = \mathbb{E}_{Y_i,Y_i^\prime}[\mathbb{E}_\epsilon[\mathrm{exp}(\lambda\epsilon(Y_i-Y_i^{\prime})]] \\
+            & \le \mathbb{E}_{Y_i,Y_i^\prime}[\mathrm{exp}(\lambda^2(Y_i-Y_i^{\prime})^2/2]
+        \end{align*}
+        where we use the hint with $(Y_i-Y_i^{\prime})$ fixed by condition. Now $(Y_i-Y_i^{\prime})$ using boundedness is at most $(b-a)$, so we obtain that,
+        \[\mathbb{E}_{Y_i}[\mathrm{exp}(\lambda Y_i)] \le \mathrm{exp}(\lambda^2(b-a)^2/2)\]
+        Then we have:
+        \begin{align*}
+            \mathrm{Pr}[Y \ge t] & = \mathrm{Pr}[e^{\lambda Y} \ge e^{\lambda t}] \\
+            & \le \frac{\mathbb{E}[e^{\lambda Y}]}{e^{\lambda t}} \\
+            & = e^{-\lambda t}\mathbb{E}[\prod_{i=1}^n e^{\lambda Y_i}] \\
+            & = e^{-\lambda t}\prod_{i=1}^n \mathbb{E}[e^{\lambda Y_i}] \\
+            & \le e^{-\lambda t}\prod_{i=1}^n exp(\lambda^2(b-a)^2/2) \\
+            & = e^{-\lambda t} e^{n\lambda^2(b-a)^2/2}
+        \end{align*}
+        Minimizing over $\lambda$, we get
+        \[\mathrm{Pr}[Y \ge t] \le exp(-\frac{t^2}{2n(b-a)^2})\]       
+        Repeating this in the other direction we get
+        \[\mathrm{Pr}[|Y| \ge t] \le 2exp(-\frac{t^2}{2n(b-a)^2})\]
+        using the union bound.
+        In conclusion, we have,
+        \[\mathrm{Pr}[|X-\mu| \ge t] \le 2exp(-\frac{t^2}{2n(b-a)^2})\]
+        \end{proof}
+    \end{enumerate}
+\end{solution}
+
+\end{document}

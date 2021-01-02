@@ -1,0 +1,126 @@
+%!BIB program = bibtex
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{enumerate}
+\usepackage[vlined, ]{algorithm2e} %ruled vlined
+
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\renewcommand{\thealgocf}{}
+
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+    
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{solution}[2][Solution]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\begin{document}
+
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+
+\title{Problem Set 4}%replace X with the appropriate number
+\author{Chen Hao \\ MG20330007\\ %replace with your name
+    Advanced Algorithms (Fall 2020)} %if necessary, replace with your course title
+
+\maketitle
+
+\begin{solution}{1}
+    ~
+
+    \begin{itemize}
+        \item Becasue $T$ will not choose vertices from the same subset, we only take into concern edges across
+        two distinct sets. Suppose we pick up from each subset $S_i$, randomly and independently, a unique vertex
+        according to a uniform distrubution, that is, in each $S_i$ the probability of a vertex to be chosen is $1/|S_i|$.
+
+        Let $E^* = \{e = \{u,v\} | ~ |\{u, v\} \cap S_i| \le 1, \forall i = 1, \cdots, r\}$, contains all edges whose end-points
+        are contained in two distinct subsets. For $e = (u, v) \in E^*$, $u \in S_i, v \in S_j$, let $A_e$ be the bad event $\{u, v\} \subset T$. Then
+        from $S_i$ and $S_j$ randomly selecting, the probability bad event $A_e$ happen is 
+        $\mathrm{Pr}[A_e] = \frac{1}{|S_i|\cdot |S_j|} \le \frac{1}{(2e\Delta)^2} = p$. The bad event is mutually independent of all 
+        the other bad events involving edges whose endpoints do not lie in $S_i \cup S_j$.
+
+        So the graph $H$ with vertex set $V_H = E^*$, and edge set
+        \[E_H = \{(e, e^\prime)|~ |e \cap S_i| + |e^\prime \cap S_i| > 1, k = 1, \cdots, r\}\]
+        is a dependency graph for the bad events $\{A_e\}_{e\in E^*}$. Since a subset $S_i$ contains $\Delta\cdot|S_i|$ cross edges, a
+        edge $e$ could at most share endpoint with $2(\Delta\cdot|S_i|-1)$ edges. So the degree of the graph $d \le 2(2e\Delta)-2$.
+
+        Hence, $p\cdot e(d+1) \le \frac{1}{(2e\Delta)^2}(4e^2\Delta^2) \le 1$.
+        Applying Lovász Local Lemma (symmetric case), we have
+        \[\mathrm{Pr}[\cap_{e\in E^*}\overline{A_e}] > 0\]
+        So there must be an independent transversal by the probabilistic method.
+        (reference from \textbf{An Improvement of the Lov´asz Local Lemma via Cluster Expansion, Rodrigo Bissacot et al.})
+        \item The algorithm is as follow, obtained by fixing a little the Moser-Tardos's one
+        \\[60pt]
+        \begin{figure}[ht]
+            \centering
+            \begin{minipage}{.7\linewidth}
+        \begin{algorithm}[H]
+            \caption{greedy maximum coverage}
+            \KwIn{pattition $S_1,S_2,\cdots,S_r$}
+            i.i.d select a vertex from each subset $S_1, \cdots, S_r$, get $v_1, \cdots, v_r$ \;
+            \While{$\exists$ bad event $A_e$ happen, $e = \{u, v\}, u \in S_i, v \in S_j$}{
+                reselect two vertex seperately in $S_i$ and $S_j$
+            }
+            \Return{maxcover}
+        \end{algorithm}
+    \end{minipage}
+\end{figure}
+
+        From LLL, we could get an independent transversal in $O(r+2m/d) = O(r+|E|/2e^2\Delta^2)$
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{2}
+    ~
+
+    \begin{itemize}
+        \item We choose i.i.d. each vertex from V with probability $p$ to construct set $X$. Let $Y$ to be the 
+        set of vertices that are not in $X$ and are not neighbors to any vertex in $X$ (namely, whose neighbors are not in $X$). 
+        Thus $D=X \oplus Y (X \cap Y = \emptyset)$ is a dominating set.
+
+        We have $\mathbb{E}[|X|]=np$. Addtionaly, for fixed $v \in Y$,
+        \[\mathrm{Pr}[v \in Y] = \mathrm{Pr}[v \not \in X, neighbor(v) \not \in X]\le (1-p)^{d+1}\]
+        So $\mathbb{E}[|Y|] = \mathbb{E}[\sum_{i=1}^n \mathbb{I}[v_i \in Y]]= \sum_{i=1}^n\mathbb{E}[ \mathbb{I}[v_i \in Y]]
+        =\sum_{i=1}^n\mathrm{Pr}[v_i \in Y] \le n(1-p)^{d+1}$. Combinate above up, we could result in
+        \[\mathbb{E}[|D|] = \mathbb{E}[|X|+|Y|] = \mathbb{E}[|X|] + \mathbb{E}[|Y|] \le np + n(1-p)^{d+1} \le np + ne^{-p(d+1)}\]
+        where the last inequality derived from $1-p \le e^{-p}$. Finally, we optimize the value of $p$ to get a optimal bound.
+        
+        With $p=\frac{\ln (d+1)}{d+1}$, we have
+        \begin{align*}
+            \mathbb{E}[|D|] & \le n\frac{\ln (d+1)}{d+1} + ne^{-\frac{\ln (d+1)}{d+1}(d+1)} \\
+            & = \frac{n(1+\ln (d+1))}{d+1}
+        \end{align*}
+        So there exists a dominating set with size at most $\frac{n(1+\ln (d+1))}{d+1}$, otherwise $\mathbb{E}[|D|]$ will contradict
+        to above inequality.
+
+        \item Let $D \subseteq V$ be a subset of vertices obtained by tossing a coin for each vertex $v \in V$ independently and randomly with
+        probability $p = \frac{\ln(2e(d^2+1))}{2d}$. 
+
+        For each vertex $v \in V$, let $A_v$ be the bad event $v$ is not dominated by $D$. Events $A_u, A_v$ are dependent if and only
+        if their outcomes depend on at least one common coin toss, namely, $neighbor(u) \cap neighbor(v) = \emptyset$. Hence, the degree of
+        the dependency graph is at most $d^2$.
+        \[\mathrm{Pr}[A_v]=(1-p)^{d(v)} = e^{d(v)\ln (1-p)} \le e^{-d(v)p}\le \frac{1}{2e(d^2+1)}\]
+        Applying the Local Lemma, we have
+        \[\mathrm{Pr}[\bigcap_{v\in V}\overline{A_v}] > (1-\frac{1}{d^2+1}) > \exp(-\frac{n}{d^2+1})\]
+        Let $X$ be the size of dominating set, then
+        \[\mathrm{Pr}[(x < (1+\epsilon)np) \bigcap (\bigcap_{v\in V}\overline{A_v})]> 0 \Leftrightarrow \mathrm{Pr}[\bigcap_{v\in V}\overline{A_v}] - \mathrm{Pr}[x \ge (1+\epsilon)np] > 0\]
+        From Chernoff bound, we have
+        \[\mathrm{Pr}[x \ge (1+\epsilon)np] \le \exp(-\frac{\epsilon^2np}{3})\]
+        By optimize $\epsilon$, we have an upper bound of $2n\ln d /d$, what is worse when $d > 2$.
+    \end{itemize}
+\end{solution}
+
+\end{document}

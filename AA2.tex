@@ -1,0 +1,232 @@
+%!BIB program = bibtex
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{enumerate}
+\usepackage[vlined]{algorithm2e} %ruled vlined
+
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+    
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{solution}[2][Solution]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\begin{document}
+
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+
+\title{Problem Set 2}%replace X with the appropriate number
+\author{Chen Hao \\ MG20330007\\ %replace with your name
+    Advanced Algorithms (Fall 2020)} %if necessary, replace with your course title
+
+\maketitle
+
+\begin{solution}{1}
+    ~
+
+    Let random variable $Y_i$ denote ture or false that $(1-\epsilon)Z \le \hat{Z}_i \le (1+\epsilon)Z$.
+    So $\mathbf{Pr}[Y_i = 1] \ge \frac34$. In addition, $\mathbb{E}[Y_i] = 1 \times  \mathbf{Pr}[Y_i = 1] + 0 \times \mathbf{Pr}[Y_i = 0] \ge \frac34$.
+    So $\mathbb{E}[\sum_{i=1}^{s}Y_i] = \sum_{i=1}^{s}\mathbb{E}[Y_i]\mathbb{E}[Y_i] \ge \frac34s$.
+    If $\sum_{i=1}^{s}Y_i \ge 0.5s$, there must be more than half of $Z_1,Z_2,\cdots,Z_s$ is the $\epsilon$-approximation
+    of $Z$, then the median $X$ must also be $\epsilon$-approximation. What is to say:
+    \[\mathbf{Pr}[(1-\epsilon)Z \le X \le (1+\epsilon)Z] \ge \mathbf{Pr}[\sum_{i=1}^{s}Y_i \ge 0.5s]\]
+    Appling Chernoff bound, we could have:
+    \begin{align*}
+        \mathbf{Pr}[\sum_{i=1}^{s}Y_i \le 0.5s] & = \mathbf{Pr}[\sum_{i=1}^{s}Y_i \le (1-\frac13)\frac34s]                      \\
+                                                & = \mathbf{Pr}[\sum_{i=1}^{s}Y_i \le (1-\frac13)\mathbb{E}[\sum_{i=1}^{s}Y_i]] \\
+                                                & \le \mathbf{exp}(-\frac{\frac19\mathbb{E}[\sum_{i=1}^{s}Y_i]}2)               \\
+                                                & \le \mathbf{exp}(-\frac{s}{24})
+    \end{align*}
+    So,
+    \begin{align*}
+        \mathbf{Pr}[(1-\epsilon)Z \le X \le (1+\epsilon)Z] & \ge \mathbf{Pr}[\sum_{i=1}^{s}Y_i \ge 0.5s]   \\
+                                                           & \ge 1-\mathbf{Pr}[\sum_{i=1}^{s}Y_i \le 0.5s] \\
+                                                           & \ge 1 - \mathbf{exp}(-\frac{s}{24})           \\
+                                                           & =1-\delta
+    \end{align*}
+    We could achieve that bound by letting $s=24\log \frac1\delta$
+\end{solution}
+
+\begin{solution}{2}
+    ~
+    \begin{itemize}
+        \item \begin{itemize}
+                  \item
+                        Let set $H\triangleq \{i ~|~ h(i) < 1/2T, i \in 1,\cdots,N\}$, then $\mathbf{Pr}_{h}[s=0] = \mathbf{Pr}_h[x_i=0, \forall i \in H]$,
+                        which implies the probability that none of indexes of nonzero entity occur in $H$.
+                        As $h(\cdot)$ is a completely random hash function that maps each $i$ to to a random point in [0, 1], $\mathbf{Pr}[i \not \in H] = 1-1/2T$.
+                        Because $\|x\|_0$ means the number of nonzeros, we can have that:
+                        \[\mathbf{Pr}_{h}[s=0] = \mathbf{Pr}_{h}[\text{if~} x_i \neq 0, \text{then~} i \not \in H, i \in 1,\cdots,N] = (1-\frac{1}{2T})^{\|x\|_0}\]
+                        \begin{enumerate}[(i)]
+                            \item $(1-\frac{1}{2T})^{\|x\|_0} = ((1-\frac{1}{2T})^{2T})^{\|x\|_0/2T} \le (\frac1e)^{\|x\|_0/2T} \le \frac1e$, when $T \le \frac12\|x\|_0$
+                            \item if $T > 2 \|x\|_0$, When $T < 1$, that is to say $\|x\|_0 = 0$, then $\mathbf{Pr}_{h}[s=0] = 1 > 0.5$. On the other hand, $T \ge 1$,
+                                  then $(1-\frac{1}{2T})^{2T} \ge \frac14, \|x\|_0/2T \le \frac14 \le \frac12$. So $((1-\frac{1}{2T})^{2T})^{\|x\|_0/2T} \ge 0.5$
+                        \end{enumerate}
+                  \item The program is as follow. Choose a median between $1/e$ and $0.5$, namely $m \approx 0.43$. When the rate of event $s=0$ among $s_1,s_2,\cdots,s_k$, namely $C$, is lower than $m$,
+                        then output \textbf{LOW}. Otherwise output \textbf{HIGH}
+
+                        If $T < \frac12 \|x\|_0$, then the expected rate of event $s=0$ is less than $1/e$, so the probability that estimator $C$ varies from $1/e$ to $m$ can be bounded by $1-\delta$ as we count
+                        over $O(\log (1/\delta))$. On the other hand, if $T > 2\|x\|_0$, then the expected rate of event $s=0$ is larger than $0.5$, so the probability that estimator $C$ varies from $0.5$ to $m$ can be bounded by $1-\delta$ as we count
+                        over $O(\log (1/\delta))$.
+              \end{itemize}
+        \item Without loss of generality, we assume that $N=2^n$. We repeat $O(\log N)$ times of the algorithm with $T$ choosen by $2^n, 2^{n-1}, \cdots, 2, 1$, and typically
+              select $\delta = 1/N$. We return the lowest value of $T$ that returns \textbf{HIGH} as the estimate for F. The \textbf{HIGH} returned by the algorithm guarantees that
+              $T \ge \frac12 \|x\|_0$. Since the returned $T$ is the lowest, next $T^{\prime}=T/2$ must return \textbf{LOW} which guarantees that $T/2 \le 2\|x\|_0$. Accordingly, we obtain:
+              \[\frac12 \|x\|_0 \le F \le 4 \|x\|_0\]
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{3}
+    ~
+    \begin{itemize}
+        \item Let event $X_1$ denote $h(A) = h(B)$, event $X_2$ denote $h(B) = h(C)$, event $X_3$ denote $h(A) = h(C)$. We have $X_1 \land X_2 \subseteq X_3$, so
+              \begin{align*}
+                  1 & \ge \mathbf{Pr}[X_1 \lor X_2]                                      \\
+                    & = \mathbf{Pr}[X_1] + \mathbf{Pr}[X_2] - \mathbf{Pr}[X_1 \land X_2] \\
+                    & \ge \mathbf{Pr}[X_1] + \mathbf{Pr}[X_2] - \mathbf{Pr}[X_3]         \\
+                    & = sim(A, B) + sim(B, C) - sim(A, C)
+              \end{align*}
+              That is to say $1-\mathbf{Pr}[X_1]+1-\mathbf{Pr}[X_2] \ge 1-\mathbf{Pr}[X_3]$. Accordingly, $d(A, B) + d(B, C) \ge d(A-C)$
+        \item From above, if a function is LSH, it must be true that $d(A,B)$ satisfies triangle inequality.
+
+              However, for Dice's coefficient, we could shoose $B$ exactly constructed by $A$ and $C$, what is to say: $A \land C = \emptyset, |A|=|C| \le |B|, |A \cap B| + |B \cap C| = |B|$.
+              We have:
+              \begin{align*}
+                  sim(A, B) + sim(B, C) - sim(A, C) & = \frac{2|A \cap B|}{|A|+|B|} + \frac{2|B \cap C|}{|B|+|C|} - \frac{2|A \cap C|}{|A|+|C|} \\
+                                                    & = \frac{2|B|}{|A|+|B|}                                                                    \\
+                                                    & \ge 1
+              \end{align*}
+              which is a contradiction.
+
+              for Overlap coefficient, we choose that $A \land C = \emptyset, |A|=|C| \ge |B|, |A \cap B| + |B \cap C| \ge |B|$. we have:
+              \begin{align*}
+                  sim(A, B) + sim(B, C) - sim(A, C) & = \frac{|A \cap B|}{\text{min}(|A|,|B|)} + \frac{|B \cap C|}{\text{min}(|B|,|C|)} - \frac{|A \cap C|}{\text{min}(|A|,|C|)} \\
+                                                    & = \frac{|A \cap B| + |B \cap C|}{|B|}                                                                                      \\
+                                                    & \ge \frac{|B|}{|B|} = 1
+              \end{align*}
+              which is a contradiction.
+        \item We could first use family of LSH function $F$ mapping from $2^U$ to $\{0,1\}^m$, then use use family of hash function $\mathcal{B}$
+              mapping from $\{0,1\}^m$ to $\{0,1\}$
+              \begin{align*}
+                   & \mathbf{Pr}_{h^\prime \in \mathcal{F}^\prime}[h^\prime(A) = h^\prime(B)]                                                          \\
+                   & = \mathbf{Pr}_{h \in \mathcal{F}}[h(A) = h(B)] \times \mathbf{Pr}_{f \in \mathcal{B}}[f(h(A)) = f(h(B))|h(A) = h(B)]              \\
+                   & ~ ~ + \mathbf{Pr}_{h \in \mathcal{F}}[h(A) \neq h(B)] \times \mathbf{Pr}_{f \in \mathcal{B}}[f(h(A)) \neq f(h(B))|h(A) \neq h(B)] \\
+                   & = sim(A, B) \times 1 + (1-sim(A, B)) \times \frac12                                                                               \\
+                   & = \frac{1+sim(A,B)}{2}
+              \end{align*}
+              So the similarity function of family of LSH function $\mathcal{F}$ is $\frac{1+sim(A,B)}{2}$
+    \end{itemize}
+\end{solution}
+
+
+\begin{solution}{4}
+    ~
+    \begin{enumerate}
+        \item  The poly-time greedy algorithm is as follow:
+
+        \begin{algorithm}
+        $S_1,S_2,\cdots,S_k \gets \emptyset$ \;
+        \For{vertex $v_i$ in $V$} {
+            add $v_i$ into subset $S_j$, if add heaviest weight to the current partition
+        }
+       \end{algorithm}
+       When add $v_i$ to some subset say $S_j$, then the vertex of $S_j$ connected to $v_i$ will never add weight to sum of weight, while of the other
+       subsets will.
+       That is to say for every selection, we must choose the subset which has the least sum of weight with edge connected to $v_i$ to join; So we have:
+       \[SOL_i = \sum_{j=1}^kw(v_i,S_j)-\min_{1\le j \le k}w(v_i, S_j)\]
+       where $SOL_i$ denote the update to sum of weight after $v_i$ is joined. Then we obtain $SOL = \sum_{i=1}^nSOL_i$. Count over n, we could have:
+       \begin{align*}
+           SOL & = \sum_{i=1}^nSOL_i \\
+           & = \sum_{i=1}^n(\sum_{j=1}^kw(v_i,S_j)-\min_{1\le j \le k}w(v_i, S_j)) \\
+           & \ge \sum_{i=1}^n(\sum_{j=1}^kw(v_i,S_j)-\frac1k\sum_{j=1}^kw(v_i,S_j)) \\
+           & = (1-\frac1k)\sum_{i=1}^n(\sum_{j=1}^kw(v_i,S_j)) \\
+           & = (1-\frac1k)\sum_{uv \in E}w(u,v) \\
+           & \ge (1-\frac1k)OPT
+       \end{align*}
+       \item The completed code is as follow:
+       
+       \begin{algorithm}
+        \SetKw{Continue}{continue}
+        start with an arbitrary bipartition of $V$ into disjoint $S0$,$S1$\;
+        \While{true} {
+            \If{$\exists i \in \{0,\}$ and $v\in S_i$ such that $w(S_{1-i}+v, S_i \backslash v) > w(S_{1-i},S_i)$} {
+                $v$ leave $S_i$ and joins $S_{1-i}$\;
+                \Continue
+            }
+        }
+       \end{algorithm}
+       The runtime of the algorithm is mainly consumed by the procedure that find the vertex $v$ satisfying the conditon.
+       In the worst case, it may be that $v$ will be found only after iterating over all the elements in $S_i$. More than
+       that, it is needed to calculate all the sum weight of edges from $v$ to $S_i$ and $S_{1-i}$ to compare. So the
+       running time of the algorithm is about $O(n^2)$.
+
+       To deducing the approximation ratio, we use a trick that 
+       \[w(S_{1-i}+v, S_i \backslash v) - w(S_{1-i},S_i) = w(v, S_i \backslash v) - w(v,S_{1-i})\]
+       which means that the update to sum of weight by moving $v$ from $S_i$ to $S_{1-i}$ is the result of discounting the connection to 
+       $S_{1-i}$ and counting the connection to $S_i$. So from the condition in the algorithm, when the algorithm stops we have:
+       \[\forall v \in S_i, w(v, S_i \backslash v) \le w(v,S_{1-i})\]
+       Counting that over $S_i$,
+       \[\sum_{v\in S_i}w(v, S_i \backslash {v}) \le \sum_{v \in S_i}w(v, S_{1-i} = SOL)\]
+       Then, we obtain:
+       \begin{align*}
+           OPT & \le \sum_{uv \in E}w(u,v)\\
+           & = \frac12\sum_{i=0,1}(\sum_{v\in S_i}w(v, S_i \backslash {v})+ \sum_{v \in S_i}w(v, S_{1-i})) \\
+           & \le 2\sum_{v \in S_i}w(v, S_{1-i}) \\
+           & = 2SOL
+       \end{align*}
+       that is $SOL \ge \frac12 OPT$
+    \end{enumerate}
+\end{solution}
+
+
+\begin{solution}{5}
+    ~
+    \begin{enumerate}[(a)]
+        \item \begin{align*}
+                  \sum_{j,l \in C_i, j < l}\|\mathbf{x}_j-\mathbf{x}_l\|_2^2 & = \frac12 \sum_{j,l \in C_i}\|\mathbf{x}_j-\mathbf{x}_l\|_2^2                                                                                     \\
+                                                                             & = \frac12 \sum_{l \in C_i}\sum_{j \in C_i}\|\mathbf{x}_j-\mathbf{x}_l\|_2^2                                                                       \\
+                                                                             & = \frac12 \sum_{l \in C_i}\sum_{j \in C_i}\mathbf{x}_j^2 - 2\mathbf{x}_j\mathbf{x}_l + \mathbf{x}_l^2                                             \\
+                                                                             & = \frac12 \sum_{l \in C_i}(\sum_{j \in C_i}\mathbf{x}_j^2 - 2\mathbf{x}_l\sum_{j \in C_i}\mathbf{x}_j + |C_i|\mathbf{x}_l^2)                      \\
+                                                                             & = \frac12 (|C_i|\sum_{j \in C_i}\mathbf{x}_j^2 - 2\sum_{l \in C_i}\mathbf{x}_l\sum_{j \in C_i}\mathbf{x}_j + |C_i|\sum_{l \in C_i}\mathbf{x}_l^2) \\
+                                                                             & = \frac12 (|C_i|\sum_{j \in C_i}\mathbf{x}_j^2 - 2\sum_{j \in C_i}\mathbf{x}_j\sum_{j \in C_i}\mathbf{x}_j + |C_i|\sum_{j \in C_i}\mathbf{x}_j^2) \\
+                                                                             & = |C_i|\sum_{j \in C_i}\mathbf{x}_j^2 - (\sum_{j \in C_i}\mathbf{x}_j)^2
+              \end{align*}
+              \begin{align*}
+                  \sum_{j \in C_i}\|\mathbf{x}_j-\mathbf{\mu}_i\|_2^2 & = \sum_{j \in C_i}\mathbf{x}_j^2 - 2\mathbf{x}_j\mathbf{\mu}_i + \mathbf{\mu}_i^2                                                                        \\
+                                                                      & = \sum_{j \in C_i}\mathbf{x}_j^2 - \frac2{|C_i|}\sum_{j \in C_i}\mathbf{x}_j\sum_{j \in C_i}\mathbf{x}_j + \frac1{|C_i|}(\sum_{j \in C_i}\mathbf{x}_j)^2 \\
+                                                                      & = \sum_{j \in C_i}\mathbf{x}_j^2 - \frac1{|C_i|}(\sum_{j \in C_i}\mathbf{x}_j)^2
+              \end{align*}
+              Accordingly, $\textbf{cost}(x_1,\cdots,x_n,C_1,\cdots,C_k) = \sum_{i=1}^{k}\frac1{|C_1|}\sum_{j,l \in C_i, j < l}\|\mathbf{x}_j-\mathbf{x}_l\|_2^2$
+        \item Since $\forall j,l \in C_i$, $\|\mathbf{\tilde{x}}_j-\mathbf{\tilde{x}}_l\|_2^2$ is bounded by $(1-\epsilon)\|\mathbf{\tilde{x}}_j-\mathbf{\tilde{x}}_l\|_2^2$ and $(1+\epsilon)\|\mathbf{\tilde{x}}_j-\mathbf{\tilde{x}}_l\|_2^2$
+              by Johnson-Lindenstrauss theorem, then sum over all the clusters, we have:
+              \begin{align*}
+                  (1-\epsilon)\textbf{cost}(x_1,\cdots,x_n,C_1,\cdots,C_k) \le \textbf{cost}(\tilde{x}_1,\cdots,\tilde{x}_n,C_1,\cdots,C_k) \\
+                  \le (1+\epsilon)\textbf{cost}(x_1,\cdots,x_n,C_1,\cdots,C_k)
+              \end{align*}
+        \item Using the conclusion from (b), we can deduce that:
+              \begin{align*}
+                  \textbf{cost}(x_1,\cdots,x_n,\tilde{C}_1,\cdots,\tilde{C}_k) & \le \frac1{1-\epsilon}\textbf{cost}(\tilde{x}_1,\cdots,\tilde{x}_n,\tilde{C}_1,\cdots,\tilde{C}_k)                      \\
+                                                                               & \le \frac{\gamma}{1-\epsilon}\textbf{cost}(\tilde{x}_1,\cdots,\tilde{x}_n,\tilde{C}_1^*,\cdots,\tilde{C}_k^*)           \\
+                                                                               & \le \frac{1+\epsilon}{1-\epsilon}\gamma\textbf{cost}(\tilde{x}_1,\cdots,\tilde{x}_n,\tilde{C}_1^*,\cdots,\tilde{C}_k^*)
+              \end{align*}
+              $(1+\epsilon)/(1-\epsilon) = \mathbf{exp}(\ln (1+\epsilon)-\ln (1-\epsilon)) \sim e^{2\epsilon} \sim 1+2\epsilon = 1+O(\epsilon)$
+    \end{enumerate}
+\end{solution}
+
+\end{document}

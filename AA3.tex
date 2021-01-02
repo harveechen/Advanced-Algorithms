@@ -1,0 +1,262 @@
+%!BIB program = bibtex
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{enumerate}
+\usepackage[vlined, ]{algorithm2e} %ruled vlined
+
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\renewcommand{\thealgocf}{}
+
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+    
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{solution}[2][Solution]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\begin{document}
+
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+
+\title{Problem Set 3}%replace X with the appropriate number
+\author{Chen Hao \\ MG20330007\\ %replace with your name
+    Advanced Algorithms (Fall 2020)} %if necessary, replace with your course title
+
+\maketitle
+
+\begin{solution}{1}
+    ~
+
+    The greedy algorithm is as follow:
+
+    \begin{figure}[ht]
+        \centering
+        \begin{minipage}{.7\linewidth}
+            \begin{algorithm}[H]
+                \caption{greedy maximum coverage}
+                \KwIn{sets $S_1,S_2,\cdots,S_k$}
+                initially, $U=\bigcup_{i=1}^mS_i$ and $C=\emptyset$\;
+                $i = 1$ \;
+                maxcover = 0\;
+                \While{$i \le k$}{
+                    find $i\in \{1,2,\cdots, m\}$with the largest $|S_i \cap U|$ \;
+                    maxcover += $|S_i \cap U|$\;
+                    let $C = C \cup \{i\}$ and $U = U \backslash S_i$\;
+                }
+                \Return{maxcover}
+            \end{algorithm}
+        \end{minipage}
+    \end{figure}
+    let $C^* \subseteq \{1, 2, \cdots, m\}, |C| = k$ denote an optimal set cover. Then
+    \[OPT = \Big|\bigcup_{i\in C^*}S_i\Big|\]
+
+    By averaging principle, there must be an $S_i$ of size
+    \[|S_i| \geq \frac{OPT}k \]
+
+    By the greediness of the algorithm, in the first iteration the algorithm must choose a set $S_i$ of at least this size to add to the set cover $C$.
+    Let $x_i$ denote at iteration $i$, the addtion to the maxcover, so $SOL =\sum_{i=1}^kx_i$. Let $U_t$ denote the universe after $t$ iteraton. $U_0 = U$
+
+    After t iteration, with the $m$ subsets $U_t \cap S_1, \cdots, U_t \cap S_m$, and remaining $|U|-\sum_{i=1}^t x_i$ elements, the maximum coverage
+    what the smaller instance can achieve become $OPT-\sum_{i=1}^t x_i$. In the first iteration of the smaller instance, we must choose a set at least the
+    size $(OPT-\sum_{i=1}^t x_i)/{k}$. Back to the original setting, what we choose must better than that (since the optimal solution for the original
+    instance must also be an optimal solution for this smaller instance). So we have
+    \[x_{t+1} \geq \frac{OPT-\sum_{i=1}^t x_i}{k} \]
+
+    Let $SOL_t = \sum_{i=1}^t x_i$, we obtain
+    \[SOL_{t+1}-SOL_t \geq \frac{OPT-SOL_t}k\]
+    that is
+    \[OPT - SOL_{t+1} \le (1-\frac1k)(OPT-SOL_t)\]
+    then, we can dedcue:
+    \[OPT-SOL=OPT-SOL_k \le (1-\frac1k)^k(OPT-SOL_0)=(1-\frac1k)^kOPT\]
+    what is
+    \[SOL \geq (1-(1-\frac1k)^k)OPT > (1-1/e)OPT\]
+
+\end{solution}
+
+\begin{solution}{2}
+    ~
+
+    \begin{itemize}
+        \item From the randomized rounding, we have that $\mathrm{Pr}[x_v = 1] = x_v^*$.
+              Because
+              \begin{align*}
+                  \mathrm{Pr}[\hat{y}_{u,v}=1] & =\mathrm{Pr}[\hat{x}_u = 1, \hat{x}_v = 0]                \\
+                                               & =\mathrm{Pr}[\hat{x}_u = 1](1-\mathrm{Pr}[\hat{x}_v = 1]) \\
+                                               & =x_u^*(1-x_v^*)                                           \\
+                                               & \ge (y_{u,v}^*)^2
+              \end{align*}
+
+              Addtionaly,
+              \begin{align*}
+                  OPT \le OPT_{LP} & = \sum_{(u,v) \in E}y_{u, v}^*                                           \\
+                                   & \le |E|\sqrt{\frac{\sum_{(u,v) \in E}(y_{u, v}^*)^2}{|E|}}               \\
+                                   & \le |E|\sqrt{\frac{\sum_{(u,v) \in E}\mathrm{Pr}[\hat{y}_{u,v}=1]}{|E|}} \\
+                                   & = |E|\sqrt{\frac{\mathbb{E}[\sum_{(u,v) \in E}\hat{y}_{u,v}]}{|E|}}      \\
+                                   & = |E|\sqrt{\frac{SOL}{|E|}}
+              \end{align*}
+              So, we obtain
+              \begin{align*}
+                  \frac{SOL}{OPT} \ge \frac{OPT}{|E|}
+              \end{align*}
+              Then the approximation ratio is $\frac{OPT}{|E|}$
+        \item Same from above, we have
+              \begin{align*}
+                  \mathrm{Pr}[\hat{y}_{u,v}=1] & =\mathrm{Pr}[\hat{x}_u = 1, \hat{x}_v = 0]                       \\
+                                               & =\mathrm{Pr}[\hat{x}_u = 1](1-\mathrm{Pr}[\hat{x}_v = 1])        \\
+                                               & = (\frac{1}{4}+\frac{x_u^*}{2})(1-(\frac{1}{4}+\frac{x_u^*}{2})) \\
+                                               & \ge (\frac{1}{4}+\frac{y_{u,v}^*}{2})^2                          \\
+                                               & = \frac{(y_{u,v}^*)^2}{4} + \frac{y_{u,v}^*}{4} + \frac{1}{16}   \\
+                                               & = \frac{(y_{u,v}^*)^2}{4} + \frac{1}{16} + \frac{y_{u,v}^*}{4}   \\
+                                               & \ge 2\sqrt{\frac{(y_{u,v}^*)^2}{64}} + \frac{y_{u,v}^*}{4}       \\
+                                               & = \frac{y_{u,v}^*}{2}
+              \end{align*}
+              So, we obtain
+              \begin{align*}
+                  \frac{SOL}{OPT} & \ge \frac{SOL}{OPT_{LP}}                                                             \\
+                                  & = \frac{\mathbb{E}[\sum_{(u,v) \in E}\hat{y}_{u,v}]}{\sum_{(u,v) \in E}y_{u,v}^*}    \\
+                                  & = \frac{\sum_{(u,v) \in E}\mathrm{Pr}[\hat{y}_{u,v}=1]}{\sum_{(u,v) \in E}y_{u,v}^*} \\
+                                  & \ge \frac{\sum_{(u,v) \in E}\frac{y_{u,v}^*}2}{\sum_{(u,v) \in E}y_{u,v}^*}          \\
+                                  & = 0.5
+              \end{align*}
+              Then the approximation ratio is 0.5
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{3}
+    ~
+
+    \begin{itemize}
+        \item Basically, we have
+              \begin{align*}
+                  \mathrm{Pr}[\text{$C_j$ is satisfied}] & = 1 - \prod_{i\in S_j^+}(1-f(x_i^*))\prod_{i\in S_j^-}f(x_i^*)   \\
+                                                         & \ge 1-\prod_{i\in S_j^+}4^{-x_i^*}\prod_{i\in S_j^-}4^{x_i^*-1}  \\
+                                                         & = 1-4^{-(\sum_{i\in S_j^+}(x_i^*)+\sum_{i\in S_j^-}(1-x_i^*))} \\
+                                                         & \ge 1-4^{-y_j^*}                                                 \\
+                                                         & \ge (1-4^{-1})y_j^*
+              \end{align*}
+              where the last inequality is derived from the convexity of $4^{-x}$. Thus we obtain
+              \begin{align*}
+                  \frac{\mathbb{E}[\text{\# of satisfied clauses}]}{OPT} & \ge \frac{\sum\mathrm{Pr}[\text{$C_j$ is satisfied}]}{OPT_{LP}} \\
+                                                                         & \ge \frac{\sum_{j=1}^{m}(1-4^{-1})y_j^*}{\sum_{j=1}^{m}y_j^*}   \\
+                                                                         & = \frac34
+              \end{align*}
+              Then the approximation ratio is at least $\frac{3}{4}$
+        \item we first proof the following lemma
+              \begin{lemma}{*}
+                  Suppose we have assigned the first i boolean variables $x_1 = a_1, \cdots, x_i = a_i$. Then we can compute
+                  the expected value of solution
+                  \[\mathbb{E}[W|x_1 = a_1, \cdots, x_i = a_i]\]
+                  in polynomial time. Where $W=|\{{j|y_j = 1}\}|$
+              \end{lemma}
+              \begin{proof}
+                  Observe that we can calculate the expectation of W conditioned on any partial set of assignments
+                  to the variables: if a literal is false, then remove it from all the clauses in which it appears; if it is true, then
+                  ignore the clauses which contain it, as they are already satisfied. Then the conditional expectation of W is the
+                  unconditioned expectation of W in the reduced set of clauses plus the weight of the already satisfied clauses.
+                  Thus let $f^{\prime}$ be the formula over variables $x_{i+1}, \cdots, x_n$ obtained from original formula $f$ by substituting values
+                  of $x_1, \cdots, x_i$ and simply we can compute the expected value of $f^{\prime}$.
+              \end{proof}
+              Then we present the algorithm
+              \begin{figure}[ht]
+                  \centering
+                  \begin{minipage}{.7\linewidth}
+                      \begin{algorithm}[H]
+                          \caption{Derandomized MAX-SAT}
+                          \KwIn{Clauses $C_1,C_2, \cdots, C_m$.}
+                          \KwOut{Boolean variable assignments $x_1, x_2, \cdots, x_n$}
+                          \For{$i \gets 1$ \KwTo $n$}{
+                              Compute $\mathbb{E}[W|x_1 = a_1, \cdots, x_{i-1} = a_{i-1}, x_i = True]$ and \\
+                              $\mathbb{E}[W|x_1 = a_1, \cdots, x_{i-1} = a_{i-1}, x_i = False]$ \;
+                              Pick the largest one and assign $x_i$ accordingly.
+                          }
+                      \end{algorithm}
+                  \end{minipage}
+              \end{figure}
+
+              While we go through the setting of $x_1, x_2, \cdots, x_n$, the expectation is at least no lower than the all randomized version. So by this Derandomization, we get
+              a better result than the original randomized version. Apply this to the algorithm using $f(x)$ as rounding function, we get a deterministic polynomial time algorithm
+              with approximation ratio 3/4.
+
+        \item If $f$ satisfies the form of $1-a^{-x} \le f(x) \le a^{x-1}$, $a>0$, then $a=4$ achieves the best approximation ratio.
+              Let $g(x) = a^{x-1}-(1-a^{-x})$, $g(x)$ must be nonnegative, so $min g(x) \ge 0$. By doing derivation, we get $g^\prime(x) = a^{-1+x}\log a - a^{-x}\log a$,
+              and $x_0 = \frac{1}{2}, g^\prime(x)=0$. So $a \le 4$, that $a=4$ achieve the best result we can hope.
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{4}
+    ~
+
+    \begin{itemize}
+        \item The integer program for the problem is as follow
+              \begin{equation*}
+                  \begin{array}{rrclcl}
+                      \displaystyle \textrm{minimize} & \multicolumn{3}{l}{\sum_{j=1}^m w_jx_j}                              \\
+                      \\
+                      \textrm{s.t.}                   & \displaystyle \sum_{u\in S_j}x_j        & \ge & 1, ~ \forall u \in U \\
+                                                      & x_j                                     & \in & \{0, 1\}             \\
+                  \end{array}
+              \end{equation*}
+              The LP relaxation version is
+              \begin{equation*}
+                \begin{array}{rrclcl}
+                    \displaystyle \textrm{minimize} & \multicolumn{3}{l}{\sum_{j=1}^m w_jx_j}                              \\
+                    \\
+                    \textrm{s.t.}                   & \displaystyle \sum_{u\in S_j}x_j        & \ge & 1, ~ \forall u \in U \\
+                                                    & x_j                                     & \in & [0, 1]
+                                                    
+                                                    \\
+                \end{array}
+            \end{equation*}
+            \item Because the process applying to the variables rounded to 0 in previous iterations is independent to the ones rounded to 1, so it is the same
+            to randomly round all variables and do the union $\mathcal{C}^\prime$ of all collection $\mathcal{C}$ of sets every turn. By one iteration, we can calculate the probability that an element
+            $u \in U$ is covered. Suppose that $u$ occurs in $k$ sets of $U$. Let the probabilities being selected associated with these sets be $p_1, p_1, \cdots, p_k$. From 
+            the LP constraintion, $p_1 + p_2 + \cdots + p_k \ge k$. Then
+            \[\mathrm{Pr}[u \text{ is not coverd by } \mathcal{C}] = \prod_{i=1}^k (1-p_i) \le (1-\frac1k)^k \le \frac{1}{e}\]
+            To get a complete set cover, independently pick $c\log n$ such subcollections, and compute their union, say $\mathcal{C}^\prime$. Then
+            \[\mathrm{Pr}[u \text{ is not coverd by } \mathcal{C}^\prime] \le (\frac{1}{e})^{c\log n}\le(\frac{1}{n})^c\]
+            Summing over all elements $u \in U$, we get
+            \[\mathrm{Pr}[\mathcal{C}^\prime \text{ is not a valid set cover}] \le n \cdot (\frac{1}{n})^c = (\frac{1}{n})^{c-1}\]
+            Clearly, $\mathbb{E}[weight(\mathcal{C}^\prime)] \le c \log n \cdot \mathbb{E}[weight(\mathcal{C})] \le c \log n \cdot OPT_{LP}$.  
+            Applying Markov’s Inequality, we get
+            \[\mathrm{Pr}[weight(\mathcal{C}^\prime) \ge \frac{c \log n \cdot OPT_{LP}}{(\frac{1}{n})^{c-1}}] \le (\frac{1}{n})^{c-1}\]
+            The probability of the union of the two undesirable events is $\le 2(\frac{1}{n})^{c-1}$. Hence
+            \[\mathrm{Pr}[\frac{SOL}{OPT}\le \frac{weight(\mathcal{C}^\prime)}{OPT_{LP}}=O(\log n) \text{ and } \mathcal{C}^\prime \text{ is a valid set cover}] \ge 1 - 2(\frac{1}{n})^{c-1} = 0.99\]
+            where $c$ is selected to satisfy $1 - 2(\frac{1}{n})^{c-1} = 0.99$
+
+            (reference from \textbf{Approximation Algorithms, Vazirani})
+    \end{itemize}
+\end{solution}
+
+\begin{solution}{5}
+    ~
+
+    \begin{itemize}
+        \item Suppose we have two objects, the first with size $s \le B$ and profit $100s$ and the second with size $B$ and profit $100B-1$, then
+        ratio of first is slightly higher than the second. So the algorithm will choose the first item with much empty space unused.
+        Hence, we have
+        \[\frac{SOL}{OPT} = \frac{100s}{100B-1} \le 1, s \le B\]
+        with $s$ approaches to 0, the approximation ratio will approaches to 0.
+        \item We first ignore the case where all items fit in the bag, since this case is easy to test and gives an obvious result with respect to our problem.
+        To hope for the most profit, if we can extend the capacity of the knapsack, we could fill it in order of profit ratio with increasing the size just enough
+        to allow space for the next most profit-dense object. This would be an optimal profit for the slightly bigger knapsack. Thus
+        \[OPT \le v_1 + v_2 + \cdots + v_k\]
+        
+        So, we have $\frac{OPT}{2} \le \max(v_k, \sum_{i=1}^{k-1}v_i)$, what achieves an approximation ratio of 1/2.
+    \end{itemize}
+    
+\end{solution}
+\end{document}
